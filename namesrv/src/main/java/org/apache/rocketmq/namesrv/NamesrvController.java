@@ -83,7 +83,7 @@ public class NamesrvController {
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
 
         this.registerProcessor();
-
+        //Name Server 每隔 10 s 扫描所有存活 Broker 的连接，如果 NameServer 超过 2 min 没有收到心跳，则 NameServer 断开与 Broker 的连接。
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
