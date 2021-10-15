@@ -146,8 +146,10 @@ public class BrokerOuterAPI {
                     @Override
                     public void run() {
                         try {
+                            // 真正注册
                             RegisterBrokerResult result = registerBroker(namesrvAddr, oneway, timeoutMills, requestHeader, body);
                             if (result != null) {
+                                // 存储
                                 registerBrokerResultList.add(result);
                             }
 
@@ -178,6 +180,7 @@ public class BrokerOuterAPI {
         final byte[] body
     ) throws RemotingCommandException, MQBrokerException, RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,
         InterruptedException {
+        // RequestCode.REGISTER_BROKER 在namesrv中查找该业务处理
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.REGISTER_BROKER, requestHeader);
         request.setBody(body);
 
@@ -278,8 +281,10 @@ public class BrokerOuterAPI {
                             requestHeader.setBrokerId(brokerId);
                             requestHeader.setBrokerName(brokerName);
                             requestHeader.setClusterName(clusterName);
+                            // netty通信的请求对象RemotingCommand
                             RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.QUERY_DATA_VERSION, requestHeader);
                             request.setBody(topicConfigWrapper.getDataVersion().encode());
+                            // netty通信的请求返回RemotingCommand
                             RemotingCommand response = remotingClient.invokeSync(namesrvAddr, request, timeoutMills);
                             DataVersion nameServerDataVersion = null;
                             Boolean changed = false;

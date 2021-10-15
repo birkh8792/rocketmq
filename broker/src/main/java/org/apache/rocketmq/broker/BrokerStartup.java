@@ -61,6 +61,7 @@ public class BrokerStartup {
     public static BrokerController start(BrokerController controller) {
         try {
 
+            // 启动
             controller.start();
 
             String tip = "The broker[" + controller.getBrokerConfig().getBrokerName() + ", "
@@ -107,13 +108,18 @@ public class BrokerStartup {
                 System.exit(-1);
             }
 
+            // broker配置信息
             final BrokerConfig brokerConfig = new BrokerConfig();
+            // nettyserver
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+            // nettyclient
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
 
             nettyClientConfig.setUseTLS(Boolean.parseBoolean(System.getProperty(TLS_ENABLE,
                 String.valueOf(TlsSystemConfig.tlsMode == TlsMode.ENFORCING))));
+            // broker的端口
             nettyServerConfig.setListenPort(10911);
+            // store存储相关的配置
             final MessageStoreConfig messageStoreConfig = new MessageStoreConfig();
 
             if (BrokerRole.SLAVE == messageStoreConfig.getBrokerRole()) {
@@ -161,7 +167,7 @@ public class BrokerStartup {
                     System.exit(-3);
                 }
             }
-
+            // 集群角色
             switch (messageStoreConfig.getBrokerRole()) {
                 case ASYNC_MASTER:
                 case SYNC_MASTER:
@@ -178,6 +184,7 @@ public class BrokerStartup {
                     break;
             }
 
+            // 使用dleger来管理主从同步，设置brokerId=-1
             if (messageStoreConfig.isEnableDLegerCommitLog()) {
                 brokerConfig.setBrokerId(-1);
             }
@@ -211,6 +218,7 @@ public class BrokerStartup {
             MixAll.printObjectProperties(log, nettyClientConfig);
             MixAll.printObjectProperties(log, messageStoreConfig);
 
+            // BrokerController实例
             final BrokerController controller = new BrokerController(
                 brokerConfig,
                 nettyServerConfig,
@@ -219,6 +227,7 @@ public class BrokerStartup {
             // remember all configs to prevent discard
             controller.getConfiguration().registerConfig(properties);
 
+            //初始化
             boolean initResult = controller.initialize();
             if (!initResult) {
                 controller.shutdown();

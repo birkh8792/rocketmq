@@ -49,6 +49,7 @@ public class NamesrvController {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
     private final KVConfigManager kvConfigManager;
+    // 路由信息管理
     private final RouteInfoManager routeInfoManager;
 
     private RemotingServer remotingServer;
@@ -61,6 +62,7 @@ public class NamesrvController {
     private FileWatchService fileWatchService;
 
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
+        // 参与配置的
         this.namesrvConfig = namesrvConfig;
         this.nettyServerConfig = nettyServerConfig;
         this.kvConfigManager = new KVConfigManager(this);
@@ -76,7 +78,7 @@ public class NamesrvController {
     public boolean initialize() {
 
         this.kvConfigManager.load();
-
+        // 创建nettyserver网络服务端
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
 
         this.remotingExecutor =
@@ -100,6 +102,7 @@ public class NamesrvController {
             }
         }, 1, 10, TimeUnit.MINUTES);
 
+        // 安全相关协议tls
         if (TlsSystemConfig.tlsMode != TlsMode.DISABLED) {
             // Register a listener to reload SslContext
             try {
@@ -153,6 +156,7 @@ public class NamesrvController {
     }
 
     public void start() throws Exception {
+        // nettyserver启动
         this.remotingServer.start();
 
         if (this.fileWatchService != null) {
