@@ -175,7 +175,7 @@ public abstract class RebalanceImpl {
 
             if (mqs.isEmpty())
                 continue;
-
+            // 先上锁
             FindBrokerResult findBrokerResult = this.mQClientFactory.findBrokerAddressInSubscribe(brokerName, MixAll.MASTER_ID, true);
             if (findBrokerResult != null) {
                 LockBatchRequestBody requestBody = new LockBatchRequestBody();
@@ -279,6 +279,7 @@ public abstract class RebalanceImpl {
 
                     List<MessageQueue> allocateResult = null;
                     try {
+                        // 策略模式
                         allocateResult = strategy.allocate(
                             this.consumerGroup,
                             this.mQClientFactory.getClientId(),
