@@ -55,6 +55,7 @@ public class MQFaultStrategy {
         this.sendLatencyFaultEnable = sendLatencyFaultEnable;
     }
 
+    // 轮循算法
     public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
         if (this.sendLatencyFaultEnable) {
             try {
@@ -64,6 +65,7 @@ public class MQFaultStrategy {
                     if (pos < 0)
                         pos = 0;
                     MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                    // broker轮循
                     if (latencyFaultTolerance.isAvailable(mq.getBrokerName()))
                         return mq;
                 }
