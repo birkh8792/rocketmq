@@ -583,18 +583,23 @@ public class CommitLog {
                 || tranType == MessageSysFlag.TRANSACTION_COMMIT_TYPE) {
             // Delay Delivery
             if (msg.getDelayTimeLevel() > 0) {
+                //延时消息处理逻辑
                 if (msg.getDelayTimeLevel() > this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel()) {
+                    //如果延时级别大于最大值，则置为最大值
                     msg.setDelayTimeLevel(this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel());
                 }
-
+                //一个名为“SCHEDULE_TOPIC_XXXX”的特殊topic常量名
                 topic = TopicValidator.RMQ_SYS_SCHEDULE_TOPIC;
+                //队列号为delayLevel - 1(延时级别减1)
                 queueId = ScheduleMessageService.delayLevel2QueueId(msg.getDelayTimeLevel());
 
+                //将消息的真实topic和queueId设置为其他属性保存
                 // Backup real topic, queueId
                 MessageAccessor.putProperty(msg, MessageConst.PROPERTY_REAL_TOPIC, msg.getTopic());
                 MessageAccessor.putProperty(msg, MessageConst.PROPERTY_REAL_QUEUE_ID, String.valueOf(msg.getQueueId()));
                 msg.setPropertiesString(MessageDecoder.messageProperties2String(msg.getProperties()));
 
+                //重新设置消息的topic为“SCHEDULE_TOPIC_XXXX”
                 msg.setTopic(topic);
                 msg.setQueueId(queueId);
             }

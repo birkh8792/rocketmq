@@ -110,11 +110,14 @@ public class ScheduleMessageService extends ConfigManager {
         return storeTimestamp + 1000;
     }
 
+    //为每一个延时级别设定单独的轮循任务start()
     public void start() {
+        //cas乐观锁保证线程安全
         if (started.compareAndSet(false, true)) {
             super.load();
             this.timer = new Timer("ScheduleMessageTimerThread", true);
             for (Map.Entry<Integer, Long> entry : this.delayLevelTable.entrySet()) {
+                //遍历延时级别
                 Integer level = entry.getKey();
                 Long timeDelay = entry.getValue();
                 Long offset = this.offsetTable.get(level);
@@ -123,6 +126,7 @@ public class ScheduleMessageService extends ConfigManager {
                 }
 
                 if (timeDelay != null) {
+                    //为每一个延时级别创建一个分发延时消息任务，首次启动延迟1s
                     this.timer.schedule(new DeliverDelayedMessageTimerTask(level, offset), FIRST_DELAY_TIME);
                 }
             }
@@ -190,13 +194,16 @@ public class ScheduleMessageService extends ConfigManager {
         return delayOffsetSerializeWrapper.toJson(prettyFormat);
     }
 
+    //https://segmentfault.com/a/1190000021385334
+    //http://blog.itpub.net/31555607/viewspace-2672190/
     public boolean parseDelayLevel() {
         HashMap<String, Long> timeUnitTable = new HashMap<String, Long>();
         timeUnitTable.put("s", 1000L);
         timeUnitTable.put("m", 1000L * 60);
         timeUnitTable.put("h", 1000L * 60 * 60);
         timeUnitTable.put("d", 1000L * 60 * 60 * 24);
-
+        //不同延时时间的字符串
+        //String levelString = "1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h"
         String levelString = this.defaultMessageStore.getMessageStoreConfig().getMessageDelayLevel();
         try {
             String[] levelArray = levelString.split(" ");
@@ -211,6 +218,7 @@ public class ScheduleMessageService extends ConfigManager {
                 }
                 long num = Long.parseLong(value.substring(0, value.length() - 1));
                 long delayTimeMillis = tu * num;
+                //存放延时级别与延时时长的对应关系
                 this.delayLevelTable.put(level, delayTimeMillis);
             }
         } catch (Exception e) {
@@ -221,6 +229,7 @@ public class ScheduleMessageService extends ConfigManager {
 
         return true;
     }
+
 
     class DeliverDelayedMessageTimerTask extends TimerTask {
         private final int delayLevel;
