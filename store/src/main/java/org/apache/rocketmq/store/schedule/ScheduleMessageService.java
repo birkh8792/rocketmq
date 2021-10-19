@@ -131,6 +131,7 @@ public class ScheduleMessageService extends ConfigManager {
                 }
             }
 
+            // 每隔10秒将延迟消息持久化到磁盘上面
             this.timer.scheduleAtFixedRate(new TimerTask() {
 
                 @Override

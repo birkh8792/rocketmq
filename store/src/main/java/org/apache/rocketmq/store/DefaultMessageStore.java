@@ -1264,6 +1264,7 @@ public class DefaultMessageStore implements MessageStore {
         log.info(fileName + (result ? " create OK" : " already exists"));
     }
 
+    // 删除文件
     private void addScheduleTask() {
 
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
@@ -1554,6 +1555,7 @@ public class DefaultMessageStore implements MessageStore {
         }
     }
 
+    // 删除commit文件
     class CleanCommitLogService {
 
         private final static int MAX_MANUAL_DELETE_FILE_TIMES = 20;
@@ -1583,6 +1585,7 @@ public class DefaultMessageStore implements MessageStore {
             }
         }
 
+        // 删除消息存储文件
         private void deleteExpiredFiles() {
             int deleteCount = 0;
             long fileReservedTime = DefaultMessageStore.this.getMessageStoreConfig().getFileReservedTime();

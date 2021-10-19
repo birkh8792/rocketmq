@@ -730,6 +730,7 @@ public class MQClientAPIImpl {
         return null;
     }
 
+    // 消费消息
     private void pullMessageAsync(
         final String addr,
         final RemotingCommand request,

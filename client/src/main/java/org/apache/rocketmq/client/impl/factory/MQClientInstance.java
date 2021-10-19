@@ -222,7 +222,7 @@ public class MQClientInstance {
     }
 
     public void start() throws MQClientException {
-
+        // producer和consumer都client，写到一起
         synchronized (this) {
             switch (this.serviceState) {
                 case CREATE_JUST:
@@ -237,7 +237,7 @@ public class MQClientInstance {
                     this.startScheduledTask();
                     // Start pull service
                     this.pullMessageService.start();
-                    // Start rebalance service
+                    // Start rebalance service 消费者负载均衡
                     this.rebalanceService.start();
                     // Start push service
                     this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
@@ -913,7 +913,7 @@ public class MQClientInstance {
         if (null == group || null == producer) {
             return false;
         }
-
+        // 管理所有producer实例
         MQProducerInner prev = this.producerTable.putIfAbsent(group, producer);
         if (prev != null) {
             log.warn("the producer group[{}] exist already.", group);
@@ -950,6 +950,7 @@ public class MQClientInstance {
         this.rebalanceService.wakeup();
     }
 
+    // 消费者负载均衡
     public void doRebalance() {
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
             MQConsumerInner impl = entry.getValue();
